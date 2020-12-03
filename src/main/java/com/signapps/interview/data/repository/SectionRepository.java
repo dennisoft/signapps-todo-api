@@ -8,6 +8,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface SectionRepository extends CrudRepository<Section, Long>{
 
@@ -18,9 +20,8 @@ public interface SectionRepository extends CrudRepository<Section, Long>{
     Iterable<Section> getSectionsByListId(@Param("list") long lidtId);
 
     @Query("SELECT NEW com.signapps.interview.business.domain.section.GetSectionStatusQueryOutput(sectionId, sectionName, status) FROM Section WHERE sectionId = :section")
-    GetSectionStatusQueryOutput getSectionStatusById(@Param("section") long sectionId);
+    Optional<GetSectionStatusQueryOutput> getSectionStatusById(@Param("section") long sectionId);
 
     @Query("SELECT NEW com.signapps.interview.business.domain.section.GetSectionResponse(s.sectionId, s.sectionName, s.status, s.userId) FROM Section s WHERE s.sectionId = :section AND s.status <> :status")
     Iterable<GetSectionResponse> getSectionStatus(@Param("section") long sectionId, @Param("status") String status);
-
 }

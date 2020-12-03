@@ -3,11 +3,13 @@ package com.signapps.interview.web.controller;
 import com.signapps.interview.business.domain.checklist.IssueCheckList;
 import com.signapps.interview.business.domain.checklist.IssueCheckListResponse;
 import com.signapps.interview.business.domain.task.GetHistoryResponse;
+import com.signapps.interview.business.service.HistoryService;
 import com.signapps.interview.business.service.IssueCheckListService;
 import com.signapps.interview.data.entity.List;
 import com.signapps.interview.data.repository.HistoryRepository;
 import com.signapps.interview.data.repository.ListRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
@@ -15,11 +17,14 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/v1/todo/checklist")
+@RequestMapping("/checklist")
 public class ListController {
 
     @Autowired
     private IssueCheckListService issueCheckListService;
+
+    @Autowired
+    private HistoryService historyService;
 
     @Autowired
     private HistoryRepository historyRepository;
@@ -45,10 +50,10 @@ public class ListController {
     }
 
     @GetMapping("/history/{list}")
-    public ResponseEntity<Iterable<GetHistoryResponse>> getChecklistChangeHistory(@PathVariable(value="list")String listId) {
-        Iterable<GetHistoryResponse> history = historyRepository.getChecklistHistory();
+    public ResponseEntity<Iterable<GetHistoryResponse>> getChecklistChangeHistory(@PathVariable(value="list")long listId) {
+        Iterable<GetHistoryResponse> history = historyService.getHistoryByList(listId);
         if (StreamSupport.stream(history.spliterator(), false).count() > 0) {
-            return ResponseEntity.ok().body(history);
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(history);
         } else {
             return ResponseEntity.status(404).body(history);
         }
