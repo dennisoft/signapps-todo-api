@@ -19,6 +19,11 @@ public class GetSectionStatusResponse {
         this.status = status;
     }
 
+    public GetSectionStatusResponse(long sectionId, String status) {
+        this.sectionId = sectionId;
+        this.status = status;
+    }
+
     public long getSectionId() {
         return sectionId;
     }

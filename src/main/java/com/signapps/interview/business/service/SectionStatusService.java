@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -24,14 +25,14 @@ public class SectionStatusService {
     @Async
     public CompletableFuture<GetSectionStatusResponse> sectionStatus(long sectionId) {
         int pendingTasks = this.taskRepository.getNumberOfPendingTasksBySection(sectionId);
-        GetSectionStatusQueryOutput sectionDetails = sectionRepository.getSectionStatusById(sectionId);
-        if (pendingTasks > 0) {
-            GetSectionStatusResponse response =  new GetSectionStatusResponse(sectionId, sectionDetails.getSectionName(), sectionDetails.getStatus(), pendingTasks);
-            return CompletableFuture.completedFuture(response);
-        } else {
-            GetSectionStatusResponse response = new GetSectionStatusResponse(sectionId, sectionDetails.getSectionName(), sectionDetails.getStatus());
-            return CompletableFuture.completedFuture(response);
-        }
+        Optional<GetSectionStatusQueryOutput> sectionDetails = sectionRepository.getSectionStatusById(sectionId);
+
+        GetSectionStatusResponse response;
+
+        response = sectionDetails.map(getSectionStatusQueryOutput -> new GetSectionStatusResponse(sectionId, getSectionStatusQueryOutput.getSectionName(), getSectionStatusQueryOutput.getStatus(), pendingTasks))
+                .orElseGet(() -> new GetSectionStatusResponse(sectionId, "Unknown"));
+
+        return CompletableFuture.completedFuture(response);
     }
 
     boolean isSectionCompleted(long sectionId) {
